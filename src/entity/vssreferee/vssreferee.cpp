@@ -6,11 +6,17 @@ QString VSSReferee::name(){
 
 VSSReferee::VSSReferee(VSSVisionClient *visionClient, const QString& refereeAddress, int refereePort)
 {
-    _visionClient = visionClient;
+    _visionClient   = visionClient;
     _refereeAddress = refereeAddress;
-    _refereePort = refereePort;
+    _refereePort    = refereePort;
 
     connect(refereeAddress, refereePort);
+
+    // Reset vars initially
+    _placementIsSet = false;
+    _blueSent       = false;
+    _yellowSent     = false;
+    _placementTimer.start();
 }
 
 VSSReferee::~VSSReferee(){
@@ -23,11 +29,30 @@ void VSSReferee::initialization(){
 void VSSReferee::loop(){
     /// TODO HERE
     /// Receive and process VSSVisionClient informations to check fouls
-    _refereeCommand.set_foul(VSSRef::Foul::FREE_BALL);
-    _refereeCommand.set_teamcolor(VSSRef::Color::BLUE);
+    /// Check what to do if one (or both) team don't make the placement correctly
 
-    if(isConnected()){
-        sendPacket(_refereeCommand);
+    // Checking timer overextended if a foul is set
+    if(_placementIsSet){
+        _placementTimer.stop();
+        if((_placementTimer.timensec() / 1E9) >= PLACEMENT_WAIT_TIME && (!_blueSent || !_yellowSent)){
+            // If enters here, one of the teams didn't placed as required in the determined time
+            if(!_blueSent) std::cout << "[VSSReferee] Team BLUE hasn't sent the placement command." << std::endl;
+            if(!_yellowSent) std::cout << "[VSSReferee] Team YELLOW hasn't sent the placement command." << std::endl;
+            _placementMutex.lock();
+            _blueSent = false;
+            _yellowSent = false;
+            _placementIsSet = false;
+            _placementMutex.unlock();
+        }
+    }
+    else{
+        _refereeCommand.set_foul(VSSRef::Foul::FREE_BALL);
+        _refereeCommand.set_teamcolor(VSSRef::Color::BLUE);
+
+        if(isConnected()){
+            sendPacket(_refereeCommand);
+            setFoul(_refereeCommand.foul());
+        }
     }
 }
 
@@ -42,6 +67,14 @@ void VSSReferee::sendPacket(VSSRef::ref_to_team::VSSRef_Command command){
 
     if(_socket.write(msg.c_str(), msg.length()) == -1){
         std::cout << "[VSSReferee] Failed to write to socket: " << _socket.errorString().toStdString() << std::endl;
+    }
+    else{
+        _placementMutex.lock();
+        _placementIsSet = true;
+        _blueSent = false;
+        _yellowSent = false;
+        _placementTimer.start();
+        _placementMutex.unlock();
     }
 }
 
@@ -68,4 +101,16 @@ bool VSSReferee::isConnected() const {
     return (_socket.isOpen());
 }
 
-
+void VSSReferee::teamSent(VSSRef::Color color){
+    /// TODO HERE
+    if(color == VSSRef::Color::BLUE){
+        _placementMutex.lock();
+        _blueSent = true;
+        _placementMutex.unlock();
+    }
+    else if(color == VSSRef::Color::YELLOW){
+        _placementMutex.lock();
+        _yellowSent = true;
+        _placementMutex.unlock();
+    }
+}

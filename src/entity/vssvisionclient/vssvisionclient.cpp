@@ -7,7 +7,7 @@ QString VSSVisionClient::name(){
 VSSVisionClient::VSSVisionClient(const QString &visionAddress, int visionPort)
 {
     _visionAddress = visionAddress;
-    _visionPort = visionPort;
+    _visionPort    = visionPort;
 
     // Create a VSS Client to listen to vision packets
     _vssClient = new VSSClient(_visionPort, visionAddress.toStdString());
