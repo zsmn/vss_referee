@@ -10,6 +10,7 @@ The VSS-Referee is an module created to the **IEEE Very Small Size Soccer League
  
 ## Compilation
 First of all, check the ports and the addresses in the `main.cpp` file and change if needed.
+Run the `protobuf.sh` file at the main folder, using the command `sudo sh protobuf.sh` in the terminal.
 Create an folder named `build`, open it and run the command `qmake ..`
 So, after this, run the command `make` and if everything goes ok, the binary will be at the folder `bin` (at the main folder).
 
