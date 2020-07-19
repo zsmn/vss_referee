@@ -48,7 +48,7 @@ private:
     void sendPacket(fira_message::sim_to_ref::Replacement replacementCommand);
     void disconnect();
     void fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow);
-    void parseRobot(VSSRef::Robot *robot);
+    void parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam);
 
     // Utils
     QString getFoulNameById(VSSRef::Foul foul);

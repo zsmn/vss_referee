@@ -168,7 +168,7 @@ void VSSReplacer::fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow)
     for(int x = 0; x < sz; x++){
         // Taking robot from frame
         VSSRef::Robot robotAt = frameBlue.robots(x);
-        parseRobot(&robotAt);
+        parseRobot(&robotAt, VSSRef::Color::BLUE);
     }
 
     // Filling yellow robots
@@ -176,11 +176,11 @@ void VSSReplacer::fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow)
     for(int x = 0; x < sz; x++){
         // Taking robot from frame
         VSSRef::Robot robotAt = frameBlue.robots(x);
-        parseRobot(&robotAt);
+        parseRobot(&robotAt, VSSRef::Color::YELLOW);
     }
 }
 
-void VSSReplacer::parseRobot(VSSRef::Robot *robot){
+void VSSReplacer::parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam){
     // Creating firaRobot and robotPosition
     fira_message::sim_to_ref::RobotReplacement *firaRobot = _replacementCommand.add_robots();
     fira_message::Robot *robotPosition = new fira_message::Robot();
@@ -193,6 +193,6 @@ void VSSReplacer::parseRobot(VSSRef::Robot *robot){
 
     // Inserting infos in firaRobot
     firaRobot->set_turnon(true);
-    firaRobot->set_yellowteam(true);
+    firaRobot->set_yellowteam(robotTeam);
     firaRobot->set_allocated_position(robotPosition);
 }
