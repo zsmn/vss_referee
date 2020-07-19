@@ -18,6 +18,9 @@ VSSReplacer::VSSReplacer(const QString& refereeAddress, int replacerPort, const 
     // Connect socket to send placement data to firaSim
     connect(firaSimAddress, firaSimCommandPort);
 
+    // Allocate in replacement command
+    _replacementCommand = new fira_message::sim_to_ref::Replacement();
+
     // Reset vars
     _packetsReceived = 0;
     _blueSentPacket = false;
@@ -65,6 +68,9 @@ void VSSReplacer::loop(){
             }
 
             if(!duplicated){
+                // Debug frame (uncomment this if you want to)
+                //debugFrame(frame);
+
                 // Save Frame from team
                 frames[frame.teamcolor()] = frame;
 
@@ -96,8 +102,11 @@ void VSSReplacer::loop(){
                 // Fill replacement packet with frame infos
                 fillPacket(frames[VSSRef::Color::BLUE], frames[VSSRef::Color::YELLOW]);
 
+                fira_message::sim_to_ref::Packet packet;
+                packet.set_allocated_replace(_replacementCommand);
+
                 // Send packet to firaSim
-                sendPacket(_replacementCommand);
+                sendPacket(packet);
             }
         }
     }
@@ -107,7 +116,7 @@ void VSSReplacer::finalization(){
     _vssClient->close();
 }
 
-void VSSReplacer::sendPacket(fira_message::sim_to_ref::Replacement command){
+void VSSReplacer::sendPacket(fira_message::sim_to_ref::Packet command){
     std::string msg;
     command.SerializeToString(&msg);
 
@@ -174,14 +183,14 @@ void VSSReplacer::fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow)
     sz = frameYellow.robots_size();
     for(int x = 0; x < sz; x++){
         // Taking robot from frame
-        VSSRef::Robot robotAt = frameBlue.robots(x);
+        VSSRef::Robot robotAt = frameYellow.robots(x);
         parseRobot(&robotAt, VSSRef::Color::YELLOW);
     }
 }
 
 void VSSReplacer::parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam){
     // Creating firaRobot and robotPosition
-    fira_message::sim_to_ref::RobotReplacement *firaRobot = _replacementCommand.add_robots();
+    fira_message::sim_to_ref::RobotReplacement *firaRobot = _replacementCommand->add_robots();
     fira_message::Robot *robotPosition = new fira_message::Robot();
 
     // Parsing position
@@ -194,4 +203,12 @@ void VSSReplacer::parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam){
     firaRobot->set_turnon(true);
     firaRobot->set_yellowteam(robotTeam);
     firaRobot->set_allocated_position(robotPosition);
+}
+
+void VSSReplacer::debugFrame(VSSRef::Frame frame){
+    std::cout << "Team color: " << frame.teamcolor() << std::endl;
+    for(int x = 0; x < frame.robots_size(); x++){
+        std::cout << "Robot " << frame.robots(x).robot_id() << " : " << std::endl;
+        std::cout << "x: " << frame.robots(x).x() << " y: " << frame.robots(x).y() << " ori: " << frame.robots(x).orientation() << std::endl;
+    }
 }

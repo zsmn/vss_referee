@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     int visionPort = 10002;
     int refereePort = 10003;
     int replacerPort = 10004;
+    QString firaSimAddress = "127.0.0.1";
     int firaSimCommandPort = 20011;
 
     /// TODO Here
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
     // Create modules
     VSSVisionClient *vssVisionClient = new VSSVisionClient(refereeAddress, visionPort);
     VSSReferee *vssReferee = new VSSReferee(vssVisionClient, refereeAddress, refereePort);
-    VSSReplacer *vssReplacer = new VSSReplacer(refereeAddress, replacerPort, refereeAddress, firaSimCommandPort);
+    VSSReplacer *vssReplacer = new VSSReplacer(refereeAddress, replacerPort, firaSimAddress, firaSimCommandPort);
 
     // Make connections with signals and slots
     QObject::connect(vssReferee, SIGNAL(setFoul(VSSRef::Foul)), vssReplacer, SLOT(takeFoul(VSSRef::Foul)), Qt::DirectConnection);

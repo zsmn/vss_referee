@@ -70,6 +70,14 @@ int main(int argc, char *argv[])
                 robot->set_orientation(0.0);
             }
             placementCommandBlue.set_allocated_world(placementFrameBlue);
+
+            // Sending blue
+            std::string msgBlue;
+            placementCommandBlue.SerializeToString(&msgBlue);
+            if(replacerSocket->write(msgBlue.c_str(), msgBlue.length()) == -1){
+                std::cout << "[Example] Failed to write to replacer socket: " << replacerSocket->errorString().toStdString() << std::endl;
+            }
+
             // Now creating an placement command for the yellow team
             VSSRef::team_to_ref::VSSRef_Placement placementCommandYellow;
             VSSRef::Frame *placementFrameYellow = new VSSRef::Frame();
@@ -83,18 +91,10 @@ int main(int argc, char *argv[])
             }
             placementCommandYellow.set_allocated_world(placementFrameYellow);
 
-            // Finishing sending the placement commands by the udp socket
-            std::string msg;
-
-            // Sending blue
-            placementCommandBlue.SerializeToString(&msg);
-            if(replacerSocket->write(msg.c_str(), qint64(msg.length())) == -1){
-                std::cout << "[Example] Failed to write to replacer socket: " << replacerSocket->errorString().toStdString() << std::endl;
-            }
-
             // Sending yellow
-            placementCommandYellow.SerializeToString(&msg);
-            if(replacerSocket->write(msg.c_str(), qint64(msg.length())) == -1){
+            std::string msgYellow;
+            placementCommandYellow.SerializeToString(&msgYellow);
+            if(replacerSocket->write(msgYellow.c_str(), msgYellow.length()) == -1){
                 std::cout << "[Example] Failed to write to replacer socket: " << replacerSocket->errorString().toStdString() << std::endl;
             }
 

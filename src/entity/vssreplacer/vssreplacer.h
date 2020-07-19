@@ -41,14 +41,15 @@ private:
     // Socket to send replacement commands to firaSim
     QUdpSocket _socket;
     QString _firaSimAddress;
-    fira_message::sim_to_ref::Replacement _replacementCommand;
+    fira_message::sim_to_ref::Replacement *_replacementCommand;
     int _firaSimCommandPort;
     bool connect(const QString &firaSimAddress, int firaSimCommandPort);
     bool isConnected() const;
-    void sendPacket(fira_message::sim_to_ref::Replacement replacementCommand);
+    void sendPacket(fira_message::sim_to_ref::Packet command);
     void disconnect();
     void fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow);
     void parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam);
+    void debugFrame(VSSRef::Frame frame);
 
     // Utils
     QString getFoulNameById(VSSRef::Foul foul);
