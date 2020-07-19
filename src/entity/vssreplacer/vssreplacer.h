@@ -48,6 +48,7 @@ private:
     void sendPacket(fira_message::sim_to_ref::Packet command);
     void disconnect();
     void fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow);
+    void placeBall(double x, double y);
     void parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam);
     void debugFrame(VSSRef::Frame frame);
 

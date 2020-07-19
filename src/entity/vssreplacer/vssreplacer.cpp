@@ -97,10 +97,11 @@ void VSSReplacer::loop(){
 
                 /// TODO here
                 /// Check if the positions are consistents to the foul (?)
-                /// Place ball automatically too, based on the foul received.
+                /// Place ball too, based on the foul received.
 
                 // Fill replacement packet with frame infos
                 fillPacket(frames[VSSRef::Color::BLUE], frames[VSSRef::Color::YELLOW]);
+                placeBall(0.0, 0.0);
 
                 fira_message::sim_to_ref::Packet packet;
                 packet.set_allocated_replace(_replacementCommand);
@@ -203,6 +204,20 @@ void VSSReplacer::parseRobot(VSSRef::Robot *robot, VSSRef::Color robotTeam){
     firaRobot->set_turnon(true);
     firaRobot->set_yellowteam(robotTeam);
     firaRobot->set_allocated_position(robotPosition);
+}
+
+void VSSReplacer::placeBall(double x, double y){
+    // Creating firaBall
+    fira_message::sim_to_ref::BallReplacement *firaBall = new fira_message::sim_to_ref::BallReplacement();
+
+    // Set ball informations
+    firaBall->set_x(x);
+    firaBall->set_y(y);
+    firaBall->set_vx(0.0);
+    firaBall->set_vx(0.0);
+
+    // Inserting infos at replacementCommand
+    _replacementCommand->set_allocated_ball(firaBall);
 }
 
 void VSSReplacer::debugFrame(VSSRef::Frame frame){
