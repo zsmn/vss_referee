@@ -15,6 +15,9 @@ int main(int argc, char *argv[])
     int replacerPort = 10004;
     int firaSimCommandPort = 20011;
 
+    /// TODO Here
+    /// Parse these address and ports
+
     // Create modules
     VSSVisionClient *vssVisionClient = new VSSVisionClient(refereeAddress, visionPort);
     VSSReferee *vssReferee = new VSSReferee(vssVisionClient, refereeAddress, refereePort);

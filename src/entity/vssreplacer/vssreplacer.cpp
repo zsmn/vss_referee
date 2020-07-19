@@ -145,9 +145,8 @@ QString VSSReplacer::getFoulNameById(VSSRef::Foul foul){
         case VSSRef::Foul::FREE_KICK:    return "FREE_KICK";
         case VSSRef::Foul::GOAL_KICK:    return "GOAL_KICK";
         case VSSRef::Foul::PENALTY_KICK: return "PENALTY_KICK";
+        default:                         return "FOUL NOT IDENTIFIED";
     }
-
-    return "FOUL NOT IDENTIFIED";
 }
 
 void VSSReplacer::takeFoul(VSSRef::Foul foul){

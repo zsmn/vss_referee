@@ -44,6 +44,13 @@ void VSSReferee::loop(){
             // Do something here (an foul when one of the teams haven't placed ?)
 
         }
+        else if(_blueSent && _yellowSent){
+            _placementMutex.lock();
+            _blueSent = false;
+            _yellowSent = false;
+            _placementIsSet = false;
+            _placementMutex.unlock();
+        }
     }
     else{
         /// TODO HERE

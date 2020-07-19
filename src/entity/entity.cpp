@@ -39,8 +39,6 @@ void Entity::run() {
             long rest = getLoopTime() - t.timemsec();
             if(rest >= 0)
                 msleep(rest);
-            else
-                std::cout << "[TIMER OVEREXTENDED] " << name().toStdString() << " for " <<  -rest  << " ms.\n";
         }
     }
 
