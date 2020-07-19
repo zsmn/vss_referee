@@ -24,13 +24,10 @@ VSSReferee::~VSSReferee(){
 }
 
 void VSSReferee::initialization(){
+
 }
 
 void VSSReferee::loop(){
-    /// TODO HERE
-    /// Receive and process VSSVisionClient informations to check fouls
-    /// Check what to do if one (or both) team don't make the placement correctly
-
     // Checking timer overextended if a foul is set
     if(_placementIsSet){
         _placementTimer.stop();
@@ -43,9 +40,16 @@ void VSSReferee::loop(){
             _yellowSent = false;
             _placementIsSet = false;
             _placementMutex.unlock();
+
+            // Do something here (an foul when one of the teams haven't placed ?)
+
         }
     }
     else{
+        /// TODO HERE
+        /// Receive and process VSSVisionClient informations to check fouls
+
+        // By default, send a FREE_BALL for team BLUE (foul packet test)
         _refereeCommand.set_foul(VSSRef::Foul::FREE_BALL);
         _refereeCommand.set_teamcolor(VSSRef::Color::BLUE);
 

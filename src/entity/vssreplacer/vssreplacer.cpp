@@ -25,6 +25,10 @@ VSSReplacer::VSSReplacer(const QString& refereeAddress, int replacerPort, const 
     _awaitingPackets = false;
 }
 
+VSSReplacer::~VSSReplacer(){
+    delete _vssClient;
+}
+
 void VSSReplacer::initialization(){
     // Vision system connection (firaSim)
     if(_vssClient->open(true))
@@ -85,12 +89,16 @@ void VSSReplacer::loop(){
 
                 std::cout << "[VSSReplacer] Succesfuly received packets from the teams. Replacing now." << std::endl;
 
-                // Send placement commands to FIRASim
-            }
+                /// TODO here
+                /// Check if the positions are consistents to the foul (?)
+                /// Place ball automatically too, based on the foul received.
 
-            /// TODO here
-            /// Send placement commands to FIRASim
-            /// Check if the positions are consistents to the foul (?)
+                // Fill replacement packet with frame infos
+                fillPacket(frames[VSSRef::Color::BLUE], frames[VSSRef::Color::YELLOW]);
+
+                // Send packet to firaSim
+                sendPacket(_replacementCommand);
+            }
         }
     }
 }
@@ -152,4 +160,39 @@ void VSSReplacer::takeFoul(VSSRef::Foul foul){
     _packetsReceived  = 0;
     _timer.start();
     _mutex.unlock();
+}
+
+void VSSReplacer::fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow){
+    // Filling blue robots
+    int sz = frameBlue.robots_size();
+    for(int x = 0; x < sz; x++){
+        // Taking robot from frame
+        VSSRef::Robot robotAt = frameBlue.robots(x);
+        parseRobot(&robotAt);
+    }
+
+    // Filling yellow robots
+    sz = frameYellow.robots_size();
+    for(int x = 0; x < sz; x++){
+        // Taking robot from frame
+        VSSRef::Robot robotAt = frameBlue.robots(x);
+        parseRobot(&robotAt);
+    }
+}
+
+void VSSReplacer::parseRobot(VSSRef::Robot *robot){
+    // Creating firaRobot and robotPosition
+    fira_message::sim_to_ref::RobotReplacement *firaRobot = _replacementCommand.add_robots();
+    fira_message::Robot *robotPosition = new fira_message::Robot();
+
+    // Parsing position
+    robotPosition->set_x(robot->x());
+    robotPosition->set_y(robot->y());
+    robotPosition->set_robot_id(robot->robot_id());
+    robotPosition->set_orientation(robot->orientation());
+
+    // Inserting infos in firaRobot
+    firaRobot->set_turnon(true);
+    firaRobot->set_yellowteam(true);
+    firaRobot->set_allocated_position(robotPosition);
 }

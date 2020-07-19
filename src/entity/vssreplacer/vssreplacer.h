@@ -13,6 +13,7 @@ class VSSReplacer : public Entity
     Q_OBJECT
 public:
     VSSReplacer(const QString& refereeAddress, int replacerPort, const QString& firaSimAddress, int firaSimCommandPort);
+    ~VSSReplacer();
     QString name();
 
 private:
@@ -26,9 +27,9 @@ private:
 
     // VSS Client to receive replacement data
     VSSClient *_vssClient;
+    VSSRef::Frame frames[2];
     QString _refereeAddress;
     int _replacerPort;
-    VSSRef::Frame frames[2];
 
     // Replacement data control
     bool _blueSentPacket;
@@ -40,12 +41,14 @@ private:
     // Socket to send replacement commands to firaSim
     QUdpSocket _socket;
     QString _firaSimAddress;
-    int _firaSimCommandPort;
     fira_message::sim_to_ref::Replacement _replacementCommand;
-    void sendPacket(fira_message::sim_to_ref::Replacement replacementCommand);
+    int _firaSimCommandPort;
     bool connect(const QString &firaSimAddress, int firaSimCommandPort);
-    void disconnect();
     bool isConnected() const;
+    void sendPacket(fira_message::sim_to_ref::Replacement replacementCommand);
+    void disconnect();
+    void fillPacket(VSSRef::Frame frameBlue, VSSRef::Frame frameYellow);
+    void parseRobot(VSSRef::Robot *robot);
 
     // Utils
     QString getFoulNameById(VSSRef::Foul foul);
